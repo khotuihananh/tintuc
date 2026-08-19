@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { GoldData, GoldItem, PRIMARY_CODE, fetchGoldData } from "@/lib/gold";
-import Sparkline from "@/components/Sparkline";
+import HistoryChart from "@/components/HistoryChart";
 
 function formatVnd(n: number): string {
   return new Intl.NumberFormat("vi-VN").format(n) + " đ";
@@ -120,10 +120,13 @@ export default function GoldPage() {
                 </div>
 
                 {history.length >= 2 && (
-                  <div className="mt-6 -mx-1">
-                    <Sparkline data={history.map((h) => h.sell)} positive={historyPositive} />
-                    <p className="text-xs text-white/45 mt-1">Giá bán ra · 30 ngày qua</p>
-                  </div>
+                  <HistoryChart
+                    points={history.map((h) => ({ date: h.time, value: h.sell }))}
+                    positive={historyPositive}
+                    unit="đ"
+                    label="Lịch sử giá bán ra"
+                    valueFormatter={(value) => new Intl.NumberFormat("vi-VN").format(Math.round(value))}
+                  />
                 )}
 
                 <p className="text-xs text-white/45 mt-6">

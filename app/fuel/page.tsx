@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { FuelData, FuelItem, fetchFuelData, pickFeatured } from "@/lib/fuel";
+import HistoryChart from "@/components/HistoryChart";
 
 function formatVnd(n: number): string {
   return new Intl.NumberFormat("vi-VN").format(Math.round(n)) + " đ";
@@ -86,6 +87,22 @@ export default function FuelPage() {
                 <p className="text-xs text-white/45 mt-6">
                   Đơn vị: VNĐ/lít · Vùng 2 áp dụng cho địa bàn xa kho đầu mối, giá cao hơn tối đa 2%
                 </p>
+                {data.history.length >= 2 && (
+                  <HistoryChart
+                    points={data.history
+                      .map((entry) => ({
+                        date: entry.date,
+                        value: entry.items.find((item) => item.name === featured.name)?.region1,
+                      }))
+                      .filter((point): point is { date: string; value: number } => typeof point.value === "number")
+                      .reverse()}
+                    positive={true}
+                    unit="đ/lít"
+                    label={`${featured.name} · lịch sử vùng 1`}
+                    valueFormatter={(value) => new Intl.NumberFormat("vi-VN").format(Math.round(value))}
+                    dateFormatter={(date) => String(date)}
+                  />
+                )}
               </div>
             )}
 

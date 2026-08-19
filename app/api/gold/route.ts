@@ -59,13 +59,29 @@ async function fetchHistory() {
     if (!res.ok) return [];
     const json = await res.json();
 
-    // Defensive: accept a raw array, or {data: [...]}, or a single flat object.
-    const list: any[] = Array.isArray(json) ? json : Array.isArray(json?.data) ? json.data : [json];
+    // vang.today returns history as:
+    // { history: [{ date, prices: { SJL1L10: { buy, sell } } }] }
+    // Keep the older flat-array shapes supported as a fallback.
+    const rawList: any[] = Array.isArray(json?.history)
+      ? json.history
+      : Array.isArray(json)
+      ? json
+      : Array.isArray(json?.data)
+      ? json.data
+      : [json];
 
-    return list
+    const list = rawList
+      .map((entry) => {
+        const nested = entry?.prices?.[PRIMARY_CODE] ?? entry?.prices?.[String(PRIMARY_CODE)];
+        return nested
+          ? { ...nested, date: entry.date, time: entry.time }
+          : entry;
+      })
       .filter((d) => d && typeof d.buy === "number" && typeof d.sell === "number")
       .map((d) => ({ time: toUnixTime(d.date, d.time), buy: d.buy, sell: d.sell }))
       .sort((a, b) => a.time - b.time);
+
+    return list;
   } catch {
     return [];
   }
