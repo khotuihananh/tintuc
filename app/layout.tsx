@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import TabBar from "@/components/TabBar";
+import PwaInstall from "@/components/PwaInstall";
 
 export const metadata: Metadata = {
   title: "Giá vàng, BTC & xăng dầu",
@@ -30,6 +31,7 @@ export default function RootLayout({
       </head>
       <body className="font-body">
         {children}
+        <PwaInstall />
         <TabBar />
       </body>
     </html>
